@@ -1,185 +1,88 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useState,useEffect } from "react";
-
-// import XSvg from "../../../components/svgs/X";
-//import from react icons
-import { MdOutlineMail } from "react-icons/md";
-import { FaUser } from "react-icons/fa";
-import { MdPassword } from "react-icons/md";
-//import { MdDriveFileRenameOutline } from "react-icons/md";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { FaUser } from "react-icons/fa";
+import { MdOutlineMail, MdPassword } from "react-icons/md";
 
 const SignUpPage = () => {
-	useEffect(() => {
-		const card = document.querySelector('.card');
-		if (card) {
-		  card.onmousemove = e => {
-			const rect = card.getBoundingClientRect();
-			const x = e.clientX - rect.left;
-			const y = e.clientY - rect.top;
-	
-			card.style.setProperty('--mouse-x', `${x}px`);
-			card.style.setProperty('--mouse-y', `${y}px`);
-		  };
-		}
-	  }, []);
-	const [formData, setFormData] = useState({
-		email:"",
-		username: "",
-		fullName: "",
-		password: "",
-	});
-	const queryClient= useQueryClient();
-	const { mutate, isError, isPending, error } = useMutation({
-		mutationFn: async ({ email, username, fullName, password }) => {
-			try {
-				const res = await fetch("/api/auth/signup", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ email, username, fullName, password }),
-				});
+  const [formData, setFormData] = useState({ email: "", username: "", password: "" });
 
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Failed to create account");
-				console.log(data);
-				return data;
-			} catch (error) {
-				console.error(error);
-				throw error;
-			}
-		},
-		onSuccess: () => {
-			toast.success("Account created successfully");
+  const signupMutation = useMutation({
+    mutationFn: async (data) => {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const response = await res.json();
+      if (!res.ok) throw new Error(response.error || "Signup failed");
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully!");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
-			{
-				/* Added this line below, after recording the video. I forgot to add this while recording, sorry, thx. */
-				queryClient.invalidateQueries({ queryKey: ["authUser"] })
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    signupMutation.mutate(formData);
+  };
 
-			}
-		},
-	});
-
-	const handleSubmit = (e) => {  //Event Object: The e parameter in the function represents the event object. This object contains information about the event, including the target element that triggered the event (e.target).
-		e.preventDefault();  // stop the default action of an event from occurring. In the context of a form submission, the default action is to send the form data to the server and reload the page.
-		mutate(formData);
-	};
-
-	const handleInputChange = (e) => {   //Event Object: The e parameter in the function represents the event object. This object contains information about the event, including the target element that triggered the event (e.target).
-		setFormData({ ...formData, [e.target.name]: e.target.value });  //email : value of email
-	};
-
-
-	return (
-       <>
-  <div className="hero bg-base-200 min-h-screen">
-    <div className="hero-content flex-col lg:flex-row">
-      <div className="text-center lg:text-left min-w-20">
-        <h1 className="text-5xl font-bold">Fit Kit Guide</h1>
-        <p className="py-6 font-extrabold">
-          Unlock your full potential and take the first step towards a healthier, stronger you.
-        </p>
-      </div>
-      <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl lg:ml-auto">
-        <form className="card-body" onSubmit={handleSubmit}>
-		<h1 className='text-4xl font-extrabold text-white'>Join today.</h1>
-		<div className="form-control my-2">
-            <label className="label">
-              <div className="relative w-full">
-                <MdOutlineMail className="absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
-                <input
-                  type="email"
-                  placeholder="Email         eg. user@gmail.com"
-                  name="email"
-                  onChange={handleInputChange}
-                  value={formData.email}
-                  className="input input-bordered pl-10 w-full"
-                  style={{ boxSizing: "border-box" }}
-                  required
-                />
-              </div>
-            </label>
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4 relative">
+            <MdOutlineMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="w-full px-10 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
           </div>
-		  <div className="form-control my-2">
-            <label className="label">
-              <div className="relative w-full">
-                <FaUser className="absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="username"
-                  name="username"
-                  onChange={handleInputChange}
-                  value={formData.username}
-                  className="input input-bordered pl-10 w-full"
-                  style={{ boxSizing: "border-box" }}
-                  required
-                />
-              </div>
-            </label>
+          <div className="mb-4 relative">
+            <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              className="w-full px-10 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              required
+            />
           </div>
-		  {/* <div className="form-control my-2">
-            <label className="label">
-              <div className="relative w-full">
-                <FaUser className="absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  name="fullName"
-                  onChange={handleInputChange}
-                  value={formData.fullName}
-                  className="input input-bordered pl-10 w-full"
-                  style={{ boxSizing: "border-box" }}
-                  required
-                />
-              </div>
-            </label>
-          </div> */}
-
-          <div className="form-control my-2">
-            <label className="label">
-              <div className="relative w-full">
-                <MdPassword className="absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400" />
-                <input
-                  type="password"
-                  placeholder="password"
-                  name="password"
-                  onChange={handleInputChange}
-                  value={formData.password}
-                  className="input input-bordered pl-10 w-full"
-                  style={{ boxSizing: "border-box" }}
-                  required
-                />
-              </div>
-            </label>
+          <div className="mb-4 relative">
+            <MdPassword className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="w-full px-10 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
           </div>
-
-          <div className="form-control mt-6 w-full">
-            <button
-              className="btn bg-orange-gradient text-white hover:bg-orange-gradient-hover w-full"
-              type="submit"
-            >
-              {isPending ? "Loading..." : "Sign Up"}
-            </button>
-            {isError && <p className="text-red-500">{error.message}</p>}
-          </div>
-
-		  <div className='flex flex-col gap-2 mt-4'>
-					<p className='text-white text-lg'>Already Have Account</p>
-					<Link to='/login'>
-						<button className='btn rounded-full btn-primary text-white btn-outline w-full'>Login</button>
-					</Link>
-				</div>
+          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+            {signupMutation.isPending ? "Signing up..." : "Sign Up"}
+          </button>
+          <p className="mt-4 text-center">
+            Already have an account? <Link to="/login" className="text-blue-500">Login</Link>
+          </p>
         </form>
       </div>
     </div>
-  </div>
-</>
-
-	)
+  );
 };
+
 export default SignUpPage;
-
-
-

@@ -1,113 +1,57 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Avatar from "../../public/avatars/boy1.png";
-const Navbar = ({ isGuest ,setIsGuest}) => { // Accept isGuest as a prop
-  const navigate = useNavigate(); // Initialize useNavigate
-  const [isOpen] = useState(false);
+
+const Navbar = ({ isGuest, setIsGuest }) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { mutate: logout } = useMutation({
     mutationFn: async () => {
-      try {
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-      } catch (error) {
-        throw new Error(error);
-      }
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Logout failed");
     },
     onSuccess: () => {
-      toast.success("Logout successful");
+      toast.success("Logged out successfully");
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      navigate("/login"); // Redirect after logout
     },
     onError: () => {
-      toast.error("Logout Failed");
+      toast.error("Logout failed");
     },
   });
 
-  const handleLogout = (e) => {
-    e.preventDefault();
+  const handleLogout = () => {
     if (isGuest) {
-      setIsGuest(false); // Set isGuest to false when guest logs out
-        navigate(`/login`); // Use navigate function to redirect to home
+      setIsGuest(false);
+      navigate("/login");
+    } else {
+      logout();
     }
-     // Call the logout mutation
-    logout();
-
-  
-
   };
 
   return (
-    <nav className="bg-black px-8 py-4 flex justify-between items-center">
-      {/* Left Side: Logo */}
-      <div className="text-transparent text-3xl font-extrabold bg-clip-text bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-500">
-        Fit Kit Guide
-      </div>
+    <nav className="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm">
+      {/* Left: Logo */}
+      <Link to="/" className="text-xl font-semibold">AgroConnect</Link>
 
-      {/* Center: Links (Hidden on mobile, shown on desktop) */}
-      {/* <div className={`space-x-6 text-2xl ${isOpen ? "block" : "hidden"} md:flex`}>
-        <Link to="/Exercises" className="text-gray-300 hover:text-orange-500">
-          Training
-        </Link>
-        <Link to="/DiscoveryPage" className="text-gray-300 hover:text-orange-500">
-          Discovery
-        </Link>
-        <Link to="/DashBoardPage" className="text-gray-300 hover:text-orange-500">
-          Dashboard
-        </Link>
-      </div> */}
-
-      {/* Right Side: Profile Icon */}
-      <div className="text-orange-500">
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-            <div className="w-10 rounded-full">
-              <img alt="Avatar" src={Avatar} />
-            </div>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              {/* <Link to="/DashBoardPage" className="justify-between">
-                Profile
-              </Link> */}
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a
-                className="w-5 h-5 cursor-pointer"
-                onClick={handleLogout} // Use the updated logout handler
-              >
-                Logout
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Mobile Bottom Navbar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black flex justify-around py-4 md:hidden">
-        {/* <Link to="/Exercises" className="text-gray-300 hover:text-orange-500">
-          Training
-        </Link>
-        <Link to="/DiscoveryPage" className="text-gray-300 hover:text-orange-500">
-          Discovery
-        </Link>
-        <Link to="/DashBoardPage" className="text-gray-300 hover:text-orange-500">
-          Dashboard
-        </Link> */}
+      {/* Right: Profile Dropdown */}
+      <div className="relative">
+        <button className="flex items-center space-x-2 focus:outline-none">
+          <img src={Avatar} alt="Avatar" className="w-8 h-8 rounded-full" />
+        </button>
+        <ul className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-md hidden group-hover:block">
+          <li>
+            <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
+          </li>
+          <li>
+            <button onClick={handleLogout} className="block px-4 py-2 text-left w-full hover:bg-gray-100">
+              Logout
+            </button>
+          </li>
+        </ul>
       </div>
     </nav>
   );

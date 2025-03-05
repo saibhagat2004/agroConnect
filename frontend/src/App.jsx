@@ -1,17 +1,15 @@
-import { Navigate, Route,Routes } from "react-router-dom"
-import React from 'react'
-import { lazy, Suspense } from "react";
-import HomePage from './pages/home';
-import LoginPage from './pages/auth/login/loginPage';
+import { Navigate, Route, Routes } from "react-router-dom";
+import React from "react";
+import HomePage from "./pages/home";
+import LoginPage from "./pages/auth/login/loginPage";
 import SignUpPage from "./pages/auth/signup/SignUpPage";
-import { Toaster } from "react-hot-toast"
-import { useQuery } from "@tanstack/react-query"
+import { Toaster } from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "./component/NavBar";
 
 function App() {
-
   const { data: authUser, isLoading } = useQuery({
-    queryKey: ['authUser'],
+    queryKey: ["authUser"],
     queryFn: async () => {
       try {
         const res = await fetch("/api/auth/me");
@@ -29,44 +27,21 @@ function App() {
   });
 
   if (isLoading) {
-    // return (
-    //   <div className="h-screen flex justify-center items-center">
-    //     <LoadingSpinner size="lg" />
-    //   </div>
-    // );
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
   }
-
-
 
   return (
     <>
-      <Suspense fallback={    <div className="h-screen flex justify-center items-center">
-        {/* <LoadingSpinner size="lg" /> */}
-      </div>}>
-        {/* {(authUser) && (
-          <div className="sticky top-0 z-50 col-span-12">
-            <Navbar isGuest={isGuest} setIsGuest={setIsGuest}/>
-          </div>
-        )} */}
-        <Navbar />
-        <Routes>
-          <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
-          <Route
-            path="/login"
-            element={
-              !authUser  ? (
-                <LoginPage />
-              ) : (
-                <Navigate to="/" />
-              )
-            }
-          />
-          <Route
-            path="/signup"
-            element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
-          />
-        </Routes>
-      </Suspense>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+      </Routes>
       <Toaster />
     </>
   );
