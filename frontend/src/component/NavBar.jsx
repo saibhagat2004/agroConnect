@@ -35,14 +35,17 @@ const Navbar = ({ isGuest, setIsGuest }) => {
   return (
     <nav className="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm">
       {/* Left: Logo */}
-      <Link to="/" className="text-xl font-semibold">AgroConnect</Link>
+      <Link to="/" className="text-xl font-semibold">Fit Kit Guide</Link>
 
       {/* Right: Profile Dropdown */}
-      <div className="relative">
+      <div className="relative group">
+        {/* Avatar Button */}
         <button className="flex items-center space-x-2 focus:outline-none">
-          <img src={Avatar} alt="Avatar" className="w-8 h-8 rounded-full" />
+          <img src={Avatar} alt="Avatar" className="w-10 h-10 rounded-full border cursor-pointer" />
         </button>
-        <ul className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-md hidden group-hover:block">
+
+        {/* Dropdown Menu */}
+        <ul className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
           <li>
             <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
           </li>
