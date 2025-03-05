@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ const SignUpPage = () => {
     password: "",
     role: "customer", // Default role
   });
-
+  const queryClient= useQueryClient();
   const signupMutation = useMutation({
     mutationFn: async (data) => {
       const res = await fetch("/api/auth/signup", {
@@ -26,6 +27,7 @@ const SignUpPage = () => {
     },
     onSuccess: () => {
       toast.success("Account created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
     onError: (error) => {
       toast.error(error.message);

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const queryClient= useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: async (data) => {
@@ -21,6 +22,7 @@ const LoginPage = () => {
     },
     onSuccess: () => {
       toast.success("Login successful!");
+	  queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
     onError: (error) => {
       toast.error(error.message);
