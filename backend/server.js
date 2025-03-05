@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 import connectMongoDB  from "./db/connectMongoDB.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routers/auth.route.js"
-import userRouter from "./routers/user.route.js"
+import customerRouter from "./routers/customer.route.js"
 dotenv.config(); //use to read .env content
 // cloudinary.config(
 //     {
@@ -29,7 +29,7 @@ app.use(cookieParser());  // parses cookies attached to the client request objec
                           //making them accessible via req.cookies. 
 
 app.use("/api/auth",authRoutes);
-app.use("/api/users",userRouter);
+app.use("/api/customer",customerRouter);
 
  
  if (process.env.NODE_ENV === "production") {         //if we not hit our endpoint run this
