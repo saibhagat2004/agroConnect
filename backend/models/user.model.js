@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },  
   role: { type: String, enum: ['customer', 'farmer', 'admin'], required: true }
 });
-
+   
 
 const User = mongoose.model("User", userSchema);
 
